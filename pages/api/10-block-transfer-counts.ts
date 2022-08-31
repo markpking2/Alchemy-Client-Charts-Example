@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { Alchemy } from "alchemy-sdk";
 const alchemySdk = require("api")("@alchemy-docs/v1.0#4y8wt5c9l79g4ign");
 import * as _ from "lodash/fp";
-import { toHex } from "alchemy-sdk";
+import { toHex, fromHex } from "alchemy-sdk";
 
 import { alchemySettings } from "../../config";
 
@@ -46,11 +46,14 @@ const getTransferCountsByBlock = async function (
       keepFetching = false;
     }
   }
-  return _.mapValues(
-    (transactions: Array<Record<string, unknown>>) => ({
-      count: _.size(transactions),
-    }),
-    _.groupBy("blockNum", _.flattenDeep(transfers))
+  return _.toPairs(
+    _.mapValues(
+      (transactions: Array<Record<string, unknown>>) => _.size(transactions),
+      _.groupBy(
+        ({ blockNum }) => parseInt(fromHex(blockNum) as unknown as string, 10),
+        _.flattenDeep(transfers)
+      )
+    )
   );
 };
 
@@ -63,7 +66,7 @@ export default async function handler(
       try {
         const { address } = req.query;
         const toBlock = await alchemy.core.getBlockNumber();
-        const fromBlock = toBlock - 9;
+        const fromBlock = toBlock - 10;
         const transferCounts = await getTransferCountsByBlock(
           toHex(fromBlock),
           toHex(toBlock),
@@ -77,7 +80,7 @@ export default async function handler(
       break;
     }
     default:
-      res.setHeader("Allow", ["POST"]);
+      res.setHeader("Allow", ["GET"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

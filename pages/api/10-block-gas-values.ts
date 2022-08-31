@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { fromHex } from "alchemy-sdk";
-import { ethers } from "ethers";
 const alchemySdk = require("api")("@alchemy-docs/v1.0#5p1de4kl6covpyp");
 import * as _ from "lodash/fp";
 
@@ -15,7 +14,7 @@ const get10LatestBaseFees = async function () {
     { apiKey: process.env.ALCHEMY_API_URL }
   );
   const baseFees = _.map(
-    (fee: string) => ethers.utils.formatUnits(fromHex(fee), "ether"),
+    (fee: string) => fromHex(fee),
     _.slice(0, 10, _.get("result.baseFeePerGas", history))
   );
   const oldestBlock = _.get("result.oldestBlock", history);
@@ -46,7 +45,7 @@ export default async function handler(
       break;
     }
     default:
-      res.setHeader("Allow", ["POST"]);
+      res.setHeader("Allow", ["GET"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
