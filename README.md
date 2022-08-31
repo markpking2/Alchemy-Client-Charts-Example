@@ -1,5 +1,7 @@
 This app uses [Alchemy's Ethereum client API](https://www.alchemy.com/) to display gas base fees, % of gas used per gas limit, and amount of token transfers for a specified ERC20 token for the latest 10 blocks on the Ethereum mainnet.
 
+Deployed at: https://nextjs-alchemy-client-charts-example.vercel.app/
+
 ### Running the app locally
 
 Add your `ALCHEMY_API_KEY` environment variable to an `.env.local` file in the root directory.
